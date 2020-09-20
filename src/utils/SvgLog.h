@@ -19,6 +19,32 @@ namespace cura
 namespace svglog
 {
 template <typename T>
+struct is_stl_const_container_like
+{
+    typedef typename std::remove_const<T>::type test_type;
+
+    template <typename A>
+    static constexpr bool test(A const* cpt = nullptr, decltype(cpt->begin())* = nullptr,
+                               decltype(cpt->end())* = nullptr, typename A::const_iterator* pci = nullptr,
+                               typename A::value_type* pv = nullptr)
+    {
+        typedef typename A::const_iterator const_iterator;
+        typedef typename A::value_type value_type;
+        return std::is_same<decltype(cpt->begin()), const_iterator>::value
+               && std::is_same<decltype(cpt->end()), const_iterator>::value
+               && std::is_same<decltype(**pci), value_type const&>::value;
+    }
+
+    template<typename A>
+    static constexpr bool test(...) {
+        return false;
+    }
+
+    static const bool value = test<test_type>(nullptr);
+
+};
+
+template <typename T>
 struct is_stl_container_like
 {
     typedef typename std::remove_const<T>::type test_type;
@@ -52,20 +78,27 @@ struct is_stl_container_like
 class SVGsink
 {
 public:
-    SVGsink() = default;
+    SVGsink();
+
 
     template <typename T>
     void log(const T& geometry)
     {
-        if (is_stl_container_like<T>::value)
+        if (is_stl_const_container_like<T>::value)
         {
-            return;
+            for (const auto& item : geometry)
+            {
+                log(item);
+            }
         }
-
-        buffer << "1\n";
+        else
+        {
+            buffer << geometry.X << ", " << geometry.Y << "\n";
+        }
     }
 
 private:
+
     std::stringstream buffer;
 };
 
@@ -81,8 +114,9 @@ public:
     template <typename... Args>
     std::shared_ptr<SVGsink> log(const std::string& sink, const Args&... args)
     {
-        return std::make_shared<SVGsink>();
-//        return sinks.at(sink);
+        auto ret_sink = sinks.at(sink);
+        // Todo: write the different args to the sink
+        return ret_sink;
     }
 
 private:
