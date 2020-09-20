@@ -15,6 +15,7 @@
 #include "infill/SubDivCube.h"
 #include "infill/UniformDensityProvider.h"
 #include "utils/logoutput.h"
+#include "utils/SvgLog.h"
 #include "utils/PolygonConnector.h"
 #include "utils/polygonUtils.h"
 #include "utils/UnionFind.h"
@@ -72,6 +73,8 @@ void Infill::generate(Polygons& result_polygons, Polygons& result_lines, const S
         result_polygons.add(generated_result_polygons);
         result_lines.add(generated_result_lines);
     }
+    svglog::log("infill", "result_polygons") << result_polygons;
+    svglog::log("infill", "result_lines") << result_lines;
 
     // generate walls around infill pattern
     for (size_t wall_idx = 0; wall_idx < wall_line_count; wall_idx++)
