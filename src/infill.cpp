@@ -73,6 +73,8 @@ void Infill::generate(Polygons& result_polygons, Polygons& result_lines, const S
         result_polygons.add(generated_result_polygons);
         result_lines.add(generated_result_lines);
     }
+    svglog::default_logger->registerSink("infill");
+    auto x =  svglog::is_stl_container_like<Polygons>::value;
     svglog::log("infill", "result_polygons") << result_polygons;
     svglog::log("infill", "result_lines") << result_lines;
 

@@ -11,7 +11,7 @@
 #include "communication/CommandLine.h" //To use the command line to slice stuff.
 #include "progress/Progress.h"
 #include "utils/logoutput.h"
-#include "utils/SvgLog.h"
+//#include "utils/SvgLog.h"
 #include "utils/string.h" //For stringcasecompare.
 
 namespace cura
@@ -168,6 +168,8 @@ void Application::slice()
     communication = new CommandLine(arguments);
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "openmp-use-default-none"
 void Application::run(const size_t argc, char** argv)
 {
     this->argc = argc;
@@ -194,7 +196,7 @@ void Application::run(const size_t argc, char** argv)
         }
     }
 
-    svglog::default_logger->registerSink("infill");
+//    svglog::default_logger->registerSink("infill");
 
 #ifdef ARCUS
     if (stringcasecompare(argv[1], "connect") == 0)

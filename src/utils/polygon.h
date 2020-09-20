@@ -58,6 +58,9 @@ class ConstPolygonRef
 protected:
     ClipperLib::Path* path;
 public:
+    using const_iterator = ClipperLib::Path::const_iterator;
+    using value_type = Point;
+
     ConstPolygonRef(const ClipperLib::Path& polygon)
     : path(const_cast<ClipperLib::Path*>(&polygon))
     {}
@@ -94,12 +97,12 @@ public:
         return *path;
     }
 
-    ClipperLib::Path::const_iterator begin() const
+    const_iterator begin() const
     {
         return path->begin();
     }
 
-    ClipperLib::Path::const_iterator end() const
+    const_iterator end() const
     {
         return path->end();
     }
@@ -347,6 +350,8 @@ class PolygonRef : public ConstPolygonRef
 {
     friend class PolygonPointer;
 public:
+    using iterator = ClipperLib::Path::iterator;
+
     PolygonRef(ClipperLib::Path& polygon)
     : ConstPolygonRef(polygon)
     {}
@@ -381,12 +386,12 @@ public:
         return (*path)[index];
     }
 
-    ClipperLib::Path::iterator begin()
+    iterator begin()
     {
         return path->begin();
     }
 
-    ClipperLib::Path::iterator end()
+    iterator end()
     {
         return path->end();
     }
@@ -605,6 +610,10 @@ class Polygons
 protected:
     ClipperLib::Paths paths;
 public:
+    using iterator = ClipperLib::Paths::iterator;
+    using const_iterator = ClipperLib::Paths::const_iterator;
+    using value_type = ClipperLib::Path;
+
     unsigned int size() const
     {
         return paths.size();
@@ -629,19 +638,19 @@ public:
         POLY_ASSERT(index < size() && index <= static_cast<unsigned int>(std::numeric_limits<int>::max()));
         return paths[index];
     }
-    ClipperLib::Paths::iterator begin()
+    iterator begin()
     {
         return paths.begin();
     }
-    ClipperLib::Paths::const_iterator begin() const
+    const_iterator begin() const
     {
         return paths.begin();
     }
-    ClipperLib::Paths::iterator end()
+    iterator end()
     {
         return paths.end();
     }
-    ClipperLib::Paths::const_iterator end() const
+    const_iterator end() const
     {
         return paths.end();
     }
@@ -662,7 +671,7 @@ public:
     /*!
      * Remove a range of polygons
      */
-    void erase(ClipperLib::Paths::iterator start, ClipperLib::Paths::iterator end)
+    void erase(iterator start, iterator end)
     {
         paths.erase(start, end);
     }
@@ -691,7 +700,7 @@ public:
      */
     void addLine(const Point from, const Point to)
     {
-        paths.emplace_back(ClipperLib::Path{from, to});
+        paths.emplace_back(value_type{from, to});
     }
 
     template<typename... Args>

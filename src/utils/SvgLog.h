@@ -6,10 +6,13 @@
 #define UTILS_SVGLOG_H
 
 #include <iostream>
+#include <list>
 #include <memory>
 #include <sstream>
 #include <type_traits>
 #include <unordered_map>
+#include <vector>
+#include <clipper.hpp>
 
 namespace cura
 {
@@ -37,11 +40,12 @@ struct is_stl_container_like
                && std::is_same<decltype(**pci), value_type const&>::value;
     }
 
-    template <typename A>
-    static constexpr bool test(...)
-    {
+    template<typename A>
+    static constexpr bool test(...) {
         return false;
     }
+
+    static const bool value = test<test_type>(nullptr);
 
 };
 
@@ -53,6 +57,11 @@ public:
     template <typename T>
     void log(const T& geometry)
     {
+        if (is_stl_container_like<T>::value)
+        {
+            return;
+        }
+
         buffer << "1\n";
     }
 
