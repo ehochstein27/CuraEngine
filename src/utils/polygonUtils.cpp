@@ -1,6 +1,7 @@
 //Copyright (c) 2018 Ultimaker B.V.
 //CuraEngine is released under the terms of the AGPLv3 or higher.
 
+#include <array>
 #include <list>
 #include <sstream>
 #include <unordered_set>
@@ -1426,7 +1427,7 @@ void PolygonUtils::fixSelfIntersections(const coord_t epsilon, Polygons& thiss)
 
     // Shrink (making _near_ self-intersections into _actual_ self-intersecrtions), fix, grow back to original size.
     // Do this repeatedly with different offsets, so points that are close together do actually merge.
-    const std::array<Point, 4> translate_vecs = std::array<Point, 4>({ Point(0, 0), Point(half_epsilon, 0), Point(0, half_epsilon), Point(half_epsilon, half_epsilon) });
+    const std::array<Point, 4> translate_vecs = { Point(0, 0), Point(half_epsilon, 0), Point(0, half_epsilon), Point(half_epsilon, half_epsilon) };
     for (const Point& translate_vec : translate_vecs)
     {
         thiss.translate(translate_vec);
