@@ -636,7 +636,7 @@ void Wireframe2gcode::processSkirt()
     {
         return;
     }
-    Polygons skirt = wireFrame.bottom_outline.offset(100000+5000).offset(-100000);
+    Polygons skirt = wireFrame.bottom_outline.offset(MM2INT(100 + 5)).offset(MM2INT(-100));
     PathOrderOptimizer order(Point(INT32_MIN, INT32_MIN));
     order.addPolygons(skirt);
     order.optimize();

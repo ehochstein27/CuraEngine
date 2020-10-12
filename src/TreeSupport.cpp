@@ -730,7 +730,7 @@ const Polygons& ModelVolumes::calculateInternalModel(const RadiusLayerPair& key)
 Polygons ModelVolumes::calculateMachineBorderCollision(Polygon machine_border)
 {
     Polygons machine_volume_border;
-    machine_volume_border.add(machine_border.offset(1000000)); //Put a border of 1m around the print volume so that we don't collide.
+    machine_volume_border.add(machine_border.offset(MM2INT(1000))); //Put a border of 1m around the print volume so that we don't collide.
     machine_border.reverse(); //Makes the polygon negative so that we subtract the actual volume from the collision area.
     machine_volume_border.add(machine_border);
     return machine_volume_border;

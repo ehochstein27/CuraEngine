@@ -1,4 +1,4 @@
-//Copyright (c) 2017 Ultimaker B.V.
+//Copyright (c) 2020 Ultimaker B.V.
 //CuraEngine is released under the terms of the AGPLv3 or higher.
 
 #ifndef UTILS_STRING_H
@@ -53,19 +53,19 @@ static inline void writeInt2mm(const int32_t coord, std::ostream& ss)
 #endif // DEBUG
     int end_pos = char_count; // the first character not to write any more
     int trailing_zeros = 1;
-    while (trailing_zeros < 4 && buffer[char_count - trailing_zeros] == '0')
+    while (trailing_zeros < 5 && buffer[char_count - trailing_zeros] == '0')
     {
         trailing_zeros++;
     }
     trailing_zeros--;
     end_pos = char_count - trailing_zeros;
-    if (trailing_zeros == 3)
+    if (trailing_zeros == 4)
     { // no need to write the decimal dot
         buffer[char_count - trailing_zeros] = '\0';
         ss << buffer;
         return;
     }
-    if (char_count <= 3)
+    if (char_count <= 4)
     {
         int start = 0; // where to start writing from the buffer
         if (coord < 0)
@@ -74,7 +74,7 @@ static inline void writeInt2mm(const int32_t coord, std::ostream& ss)
             start = 1;
         }
         ss << "0.";
-        for (int nulls = char_count - start; nulls < 3; nulls++)
+        for (int nulls = char_count - start; nulls < 4; nulls++)
         { // fill up to 3 decimals with zeros
             ss << '0';
         }
@@ -85,7 +85,7 @@ static inline void writeInt2mm(const int32_t coord, std::ostream& ss)
     {
         char prev = '.';
         int pos;
-        for (pos = char_count - 3; pos <= end_pos; pos++)
+        for (pos = char_count - 4; pos <= end_pos; pos++)
         { // shift all characters and insert the decimal dot
             char next_prev = buffer[pos];
             buffer[pos] = prev;
