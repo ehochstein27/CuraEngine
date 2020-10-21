@@ -4,7 +4,13 @@
 
 #define STBI_FAILURE_USERMSG // enable user friendly bug messages for STB lib
 #define STB_IMAGE_IMPLEMENTATION // needed in order to enable the implementation of libs/std_image.h
+
+// FIXME: Conan and our own Findstb script place stb in different locations, this is a work around
+#ifndef STB_CONAN
 #include <stb/stb_image.h>
+#else
+#include <stb_image.h>
+#endif
 
 #include "ImageBasedDensityProvider.h"
 #include "SierpinskiFill.h"

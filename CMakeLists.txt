@@ -5,6 +5,13 @@ cmake_minimum_required(VERSION 3.6.0)
 
 project(CuraEngine)
 
+option(ENABLE_CONAN "Build dependencies with Conan" ON)
+
+if(ENABLE_CONAN)
+    include(cmake/Conan.cmake)
+    run_conan()
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(ENABLE_ARCUS "Enable support for ARCUS" ON)
@@ -25,13 +32,13 @@ if(ENABLE_ARCUS)
 endif()
 
 #For reading image files.
-find_package(Stb REQUIRED)
-include_directories(${Stb_INCLUDE_DIRS})
+find_package(stb REQUIRED)
+include_directories(${stb_INCLUDE_DIRS})
 
 option(USE_SYSTEM_LIBS "Use the system libraries if available" OFF)
 if(USE_SYSTEM_LIBS)
     find_package(RapidJSON CONFIG REQUIRED)
-    find_package(Polyclipping REQUIRED)
+    find_package(polyclipping REQUIRED)
 endif()
 
 # convert build type to upper case letters
@@ -120,7 +127,7 @@ if (ENABLE_OPENMP)
 endif()
 
 if(USE_SYSTEM_LIBS)
-    include_directories(${Polyclipping_INCLUDE_DIRS} "${CMAKE_BINARY_DIR}" ${RAPIDJSON_INCLUDE_DIRS})
+    include_directories(${polyclipping_INCLUDE_DIRS} "${CMAKE_BINARY_DIR}" ${RAPIDJSON_INCLUDE_DIRS})
 else()
     include_directories("${CMAKE_CURRENT_BINARY_DIR}" libs libs/clipper)
     add_library(clipper STATIC libs/clipper/clipper.cpp)
@@ -265,18 +272,19 @@ endif ()
 
 # Compiling CuraEngine itself.
 add_library(_CuraEngine STATIC ${engine_SRCS} ${engine_PB_SRCS}) #First compile all of CuraEngine as library, allowing this to be re-used for tests.
+target_link_libraries(_CuraEngine PRIVATE stb::stb)
 
 if (CuraEngine_Download_Stb)
     add_dependencies(_CuraEngine stb)
 endif()
 if(USE_SYSTEM_LIBS)
-    target_link_libraries(_CuraEngine ${Polyclipping_LIBRARIES})
+    target_link_libraries(_CuraEngine ${polyclipping_LIBRARIES})
 else()
-    target_link_libraries(_CuraEngine clipper)
+    target_link_libraries(_CuraEngine PRIVATE clipper)
 endif()
 
 if (ENABLE_ARCUS)
-    target_link_libraries(_CuraEngine Arcus)
+    target_link_libraries(_CuraEngine PRIVATE Arcus)
 endif ()
 
 set_target_properties(_CuraEngine PROPERTIES COMPILE_DEFINITIONS "VERSION=\"${CURA_ENGINE_VERSION}\"")
@@ -294,7 +302,7 @@ if(WIN32)
 endif(WIN32)
 
 if (UNIX)
-    target_link_libraries(_CuraEngine pthread)
+    target_link_libraries(_CuraEngine PRIVATE pthread)
 endif()
 
 if (NOT WIN32)
