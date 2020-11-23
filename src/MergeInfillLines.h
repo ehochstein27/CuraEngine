@@ -56,7 +56,7 @@ private:
     /*
      * The allowed deviation in the line positioning.
      */
-    const coord_t maximum_deviation;
+    coord_t maximum_deviation;
 
     /*
      *

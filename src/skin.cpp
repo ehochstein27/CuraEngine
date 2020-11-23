@@ -373,6 +373,8 @@ void SkinInfillAreaComputation::generateSkinInsetsAndInnerSkinInfill(SliceLayerP
  */
 void SkinInfillAreaComputation::generateSkinInsets(SkinPart& skin_part)
 {
+    const coord_t maximum_resolution = mesh.settings.get<coord_t>("meshfix_maximum_resolution");
+    const coord_t maximum_deviation = mesh.settings.get<coord_t>("meshfix_maximum_deviation");
     for (size_t inset_idx = 0; inset_idx < skin_inset_count; inset_idx++)
     {
         skin_part.insets.push_back(Polygons());
@@ -387,9 +389,6 @@ void SkinInfillAreaComputation::generateSkinInsets(SkinPart& skin_part)
         }
 
         // optimize polygons: remove unnecessary verts
-        const ExtruderTrain& train_wall = mesh.settings.get<ExtruderTrain&>(inset_idx == 0 ? "wall_0_extruder_nr" : "wall_x_extruder_nr");
-        const coord_t maximum_resolution = train_wall.settings.get<coord_t>("meshfix_maximum_resolution");
-        const coord_t maximum_deviation = train_wall.settings.get<coord_t>("meshfix_maximum_deviation");
         skin_part.insets[inset_idx].simplify(maximum_resolution, maximum_deviation);
         if (skin_part.insets[inset_idx].size() < 1)
         {

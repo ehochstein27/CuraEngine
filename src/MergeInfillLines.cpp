@@ -14,10 +14,13 @@ namespace cura
 MergeInfillLines::MergeInfillLines(ExtruderPlan& plan)
 : extruder_plan(plan)
 , nozzle_size(Application::getInstance().current_slice->scene.extruders[extruder_plan.extruder_nr].settings.get<coord_t>("machine_nozzle_size"))
-, maximum_deviation(Application::getInstance().current_slice->scene.extruders[extruder_plan.extruder_nr].settings.get<coord_t>("meshfix_maximum_deviation"))
+, maximum_deviation(std::numeric_limits<coord_t>::max())
+{
+    for (const Mesh& mesh : Application::getInstance().current_slice->scene.current_mesh_group->meshes)
     {
-        //Just copy the parameters to their fields.
+        maximum_deviation = std::min(maximum_deviation, mesh.settings.get<coord_t>("meshfix_maximum_deviation"));
     }
+}
 
     coord_t MergeInfillLines::calcPathLength(const Point path_start, GCodePath& path) const
     {

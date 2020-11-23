@@ -1020,14 +1020,14 @@ void FffPolygonGenerator::processDraftShield(SliceDataStorage& storage)
     storage.draft_protection_shield = draft_shield.approxConvexHull(draft_shield_dist);
 
     //Extra offset has rounded joints, so simplify again.
-    coord_t maximum_resolution = 0; //Draft shield is printed with every extruder, so resolve with the max() or min() of them to meet the requirements of all extruders.
-    coord_t maximum_deviation = std::numeric_limits<coord_t>::max();
-    for(const ExtruderTrain& extruder : Application::getInstance().current_slice->scene.extruders)
+    coord_t max_resolution = std::numeric_limits<coord_t>::max();
+    coord_t max_deviation = std::numeric_limits<coord_t>::max();
+    for (const SliceMeshStorage& mesh : storage.meshes)
     {
-        maximum_resolution = std::max(maximum_resolution, extruder.settings.get<coord_t>("meshfix_maximum_resolution"));
-        maximum_deviation = std::min(maximum_deviation, extruder.settings.get<coord_t>("meshfix_maximum_deviation"));
+        max_resolution = std::min(max_resolution, mesh.settings.get<coord_t>("meshfix_maximum_resolution"));
+        max_deviation = std::min(max_deviation, mesh.settings.get<coord_t>("meshfix_maximum_deviation"));
     }
-    storage.draft_protection_shield.simplify(maximum_resolution, maximum_deviation);
+    storage.draft_protection_shield.simplify(max_resolution, max_deviation);
 }
 
 void FffPolygonGenerator::processPlatformAdhesion(SliceDataStorage& storage)
@@ -1076,11 +1076,16 @@ void FffPolygonGenerator::processPlatformAdhesion(SliceDataStorage& storage)
     }
 
     // Also apply maximum_[deviation|resolution] to skirt/brim.
-    const coord_t line_segment_resolution = train.settings.get<coord_t>("meshfix_maximum_resolution");
-    const coord_t line_segment_deviation = train.settings.get<coord_t>("meshfix_maximum_deviation");
+    coord_t max_resolution = std::numeric_limits<coord_t>::max();
+    coord_t max_deviation = std::numeric_limits<coord_t>::max();
+    for (const SliceMeshStorage& mesh : storage.meshes)
+    {
+        max_resolution = std::min(max_resolution, mesh.settings.get<coord_t>("meshfix_maximum_resolution"));
+        max_deviation = std::min(max_deviation, mesh.settings.get<coord_t>("meshfix_maximum_deviation"));
+    }
     for (Polygons& polygons : storage.skirt_brim)
     {
-        polygons.simplify(line_segment_resolution, line_segment_deviation);
+        polygons.simplify(max_resolution, max_deviation);
     }
 }
 
