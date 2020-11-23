@@ -126,13 +126,20 @@ void AreaSupport::generateSupportInfillFeatures(SliceDataStorage& storage)
 
 void AreaSupport::prepareInsetsAndInfillAreasForForSupportInfillParts(SliceDataStorage& storage)
 {
+    coord_t max_resolution = std::numeric_limits<coord_t>::max();
+    coord_t max_deviation = std::numeric_limits<coord_t>::max();
+    for (const SliceMeshStorage& mesh : storage.meshes)
+    {
+        max_resolution = std::min(max_resolution, mesh.settings.get<coord_t>("meshfix_maximum_resolution"));
+        max_deviation = std::min(max_deviation, mesh.settings.get<coord_t>("meshfix_maximum_deviation"));
+    }
     // at this stage, the outlines are final, and we can generate insets and infill area
     for (SupportLayer& support_layer : storage.support.supportLayers)
     {
         for (std::vector<SupportInfillPart>::iterator part_itr = support_layer.support_infill_parts.begin(); part_itr != support_layer.support_infill_parts.end();)
         {
             SupportInfillPart& part = *part_itr;
-            const bool is_not_empty_part = part.generateInsetsAndInfillAreas();
+            const bool is_not_empty_part = part.generateInsetsAndInfillAreas(max_resolution, max_deviation);
             if (!is_not_empty_part)
             {
                 part_itr = support_layer.support_infill_parts.erase(part_itr);
@@ -407,7 +414,7 @@ void AreaSupport::combineSupportInfillLayers(SliceDataStorage& storage)
 }
 
 
-void AreaSupport::generateOutlineInsets(std::vector<Polygons>& insets, Polygons& outline, const unsigned int inset_count, const coord_t wall_line_width_x)
+void AreaSupport::generateOutlineInsets(std::vector<Polygons>& insets, Polygons& outline, const unsigned int inset_count, const coord_t wall_line_width_x, const coord_t max_resolution, const coord_t max_deviation)
 {
     for (unsigned int inset_idx = 0; inset_idx < inset_count; inset_idx++)
     {
@@ -422,7 +429,7 @@ void AreaSupport::generateOutlineInsets(std::vector<Polygons>& insets, Polygons&
         }
 
         // optimize polygons: remove unnecessary verts
-        insets[inset_idx].simplify();
+        insets[inset_idx].simplify(max_resolution, max_deviation);
         if (insets[inset_idx].size() < 1)
         {
             insets.pop_back();
